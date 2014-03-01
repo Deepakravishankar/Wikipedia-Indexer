@@ -1,0 +1,72 @@
+package edu.buffalo.cse.ir.wikiindexer.tokenizer.rules;
+
+import edu.buffalo.cse.ir.wikiindexer.tokenizer.TokenStream;
+import edu.buffalo.cse.ir.wikiindexer.tokenizer.TokenizerException;
+import edu.buffalo.cse.ir.wikiindexer.tokenizer.rules.TokenizerRule.RULENAMES;
+
+@RuleClass(className = RULENAMES.SPECIALCHARS)
+public class SpecialCharRule implements TokenizerRule {
+
+@Override
+public void apply(TokenStream stream) throws TokenizerException 
+{
+	if (stream != null) 
+	{
+		String buffer;	
+		while (stream.hasNext())
+		{  
+			buffer=stream.next();
+			
+			if(buffer.matches("\\W"))
+					{
+				stream.previous();
+				stream.remove();
+					}
+			else if(buffer.matches("\\D*\\-+\\w*|\\w*\\-+\\D*"))
+			{
+			
+				String [] token0=buffer.split("[^\\w.]+");
+				String[] myTokens0=new String[token0.length];
+				int i=0;
+				for(String tok:token0)
+				{
+					if(!tok.equals(""))
+					{
+						myTokens0[i]=tok;
+						i++;
+					}
+				}
+				
+				stream.previous();
+				stream.set(myTokens0);
+				stream.next();
+				
+			}
+			else if(buffer.matches("\\__*\\S*"))
+			{
+				stream.previous();
+				stream.remove();
+			}
+			else 
+			{
+			String [] token1=buffer.split("[^\\w.-]+");
+			String[] myTokens=new String[token1.length];
+			int i=0;
+			for(String tok:token1)
+			{
+				if(!tok.equals(""))
+				{
+					myTokens[i]=tok;
+					i++;
+				}
+			}
+			
+			stream.previous();
+			stream.set(myTokens);
+			stream.next();
+			}
+		}
+		}
+	stream.reset();
+	}
+}
